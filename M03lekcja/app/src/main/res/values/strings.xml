@@ -1,3 +1,24 @@
 <resources>
-    <string name="app_name">M03</string>
+    <string name="app_name">Sklep 4TP</string>
+    <string name="title_detail">Szczegóły</string>
+    <string name="title_add">Nowy produkt</string>
+    <string name="button_laptop">Laptop – 2999 zł</string>
+    <string name="button_mouse">Mysz – 49 zł</string>
+    <string name="action_add">Dodaj</string>
+    <string name="action_about">O aplikacji</string>
+    <string name="about_text">Sklep 4TP, wersja 0.1</string>
+    <string name="last_added">Ostatnio dodano: %1$s (%2$.2f zł)</string>
+    <string name="price_format">Cena: %.2f zł</string>
+    <string name="available_yes">Dostępny</string>
+    <string name="available_no">Niedostępny</string>
+    <string name="hint_name">Nazwa</string>
+    <string name="hint_price">Cena</string>
+    <string name="button_save">Zapisz</string>
+    <string name="button_cancel">Anuluj</string>
+    <string name="button_share">Udostępnij</string>
+    <string name="button_call">Zadzwoń do sklepu</string>
+    <string name="share_via">Udostępnij przez</string>
+    <string name="share_text">Polecam: %1$s za %2$.2f zł</string>
+    <string name="error_required">Pole wymagane</string>
+    <string name="no_app">Brak aplikacji do obsługi</string>
 </resources>
