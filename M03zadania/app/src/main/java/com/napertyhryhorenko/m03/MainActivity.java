@@ -1,104 +1,144 @@
-
 package com.napertyhryhorenko.m03;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText editWeight, editHeight;
-    Button btnCalculate, btnDetails;
-    TextView txtResult;
+    private EditText etWeight;
+    private EditText etHeight;
+    private TextView tvResult;
+    private Button btnDetails;
 
-    double bmi;
-    double weight;
-    double height;
-    String category;
+    private String currentUnit = SettingsActivity.UNIT_METRIC;
 
-    boolean calculated = false;
+    private double lastBmi = 0.0;
+    private String lastCategory = "";
+    private double lastWeight = 0.0;
+    private double lastHeight = 0.0;
+
+    private final ActivityResultLauncher<Intent> settingsLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    String chosenUnit = result.getData().getStringExtra(SettingsActivity.EXTRA_UNIT_SYSTEM);
+                    if (chosenUnit != null) {
+                        currentUnit = chosenUnit;
+
+                        etWeight.setText("");
+                        etHeight.setText("");
+                        updateInputHints();
+
+                        tvResult.setText("Wynik pojawi się tutaj");
+                        btnDetails.setVisibility(View.GONE);
+                    }
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editWeight = findViewById(R.id.editWeight);
-        editHeight = findViewById(R.id.editHeight);
-        btnCalculate = findViewById(R.id.btnCalculate);
+        etWeight = findViewById(R.id.etWeight);
+        etHeight = findViewById(R.id.etHeight);
+        tvResult = findViewById(R.id.tvResult);
         btnDetails = findViewById(R.id.btnDetails);
-        txtResult = findViewById(R.id.txtResult);
 
-        btnDetails.setEnabled(false);
+        Button btnCalculate = findViewById(R.id.btnCalculate);
+        Button btnInfo = findViewById(R.id.btnInfo);
+        Button btnSettings = findViewById(R.id.btnSettings);
 
-        btnCalculate.setOnClickListener(v -> calculateBMI());
+        btnInfo.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, InfoActivity.class);
+            startActivity(intent);
+        });
 
-        btnDetails.setOnClickListener(v -> openDetails());
+        btnSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            intent.putExtra(SettingsActivity.EXTRA_UNIT_SYSTEM, currentUnit);
+            settingsLauncher.launch(intent);
+        });
+
+        btnCalculate.setOnClickListener(v -> calculateBmi());
+
+        btnDetails.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+            intent.putExtra(DetailsActivity.EXTRA_BMI, lastBmi);
+            intent.putExtra(DetailsActivity.EXTRA_CATEGORY, lastCategory);
+            intent.putExtra(DetailsActivity.EXTRA_WEIGHT, lastWeight);
+            intent.putExtra(DetailsActivity.EXTRA_HEIGHT, lastHeight);
+            startActivity(intent);
+        });
     }
 
-    private void calculateBMI() {
+    private void calculateBmi() {
+        String weightStr = etWeight.getText().toString().trim();
+        String heightStr = etHeight.getText().toString().trim();
 
-        String weightText = editWeight.getText().toString();
-        String heightText = editHeight.getText().toString();
-
-        if (weightText.isEmpty() || heightText.isEmpty()) {
+        if (weightStr.isEmpty() || heightStr.isEmpty()) {
             Toast.makeText(this, "Wpisz wagę i wzrost!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        try {
-            weight = Double.parseDouble(weightText.replace(',', '.'));
-            height = Double.parseDouble(heightText.replace(',', '.'));
+        double weight = Double.parseDouble(weightStr);
+        double height = Double.parseDouble(heightStr);
 
-            if (weight <= 0 || height <= 0) {
-                Toast.makeText(this, "Podaj wartości większe od zera!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            bmi = weight / Math.pow(height / 100.0, 2);
-
-            if (bmi < 18.5) {
-                category = "Niedowaga";
-            } else if (bmi < 25) {
-                category = "Waga prawidłowa";
-            } else if (bmi < 30) {
-                category = "Nadwaga";
-            } else {
-                category = "Otyłość";
-            }
-
-            txtResult.setText(String.format(
-                    java.util.Locale.getDefault(),
-                    "BMI: %.2f\nKategoria: %s",
-                    bmi, category
-            ));
-
-            calculated = true;
-            btnDetails.setEnabled(true);
-
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Niepoprawne dane!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void openDetails() {
-
-        if (!calculated) {
+        if (weight <= 0 || height <= 0) {
+            Toast.makeText(this, "Wartości muszą być większe od zera!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Intent intent = new Intent(MainActivity.this, InfoActivity.class);
+        double bmi;
+        if (SettingsActivity.UNIT_IMPERIAL.equals(currentUnit)) {
+            bmi = (weight / (height * height)) * 703.0;
+        } else {
+            double heightInMeters = height / 100.0;
+            bmi = weight / (heightInMeters * heightInMeters);
+        }
 
-        intent.putExtra(InfoActivity.EXTRA_BMI, bmi);
-        intent.putExtra(InfoActivity.EXTRA_CATEGORY, category);
-        intent.putExtra(InfoActivity.EXTRA_WEIGHT, weight);
-        intent.putExtra(InfoActivity.EXTRA_HEIGHT, height);
+        String category = getBmiCategory(bmi);
 
-        startActivity(intent);
+        lastBmi = bmi;
+        lastCategory = category;
+        lastWeight = weight;
+        lastHeight = height;
+
+        tvResult.setText(String.format(Locale.getDefault(), "Twoje BMI: %.2f\n(%s)", bmi, category));
+        btnDetails.setVisibility(View.VISIBLE);
+    }
+
+    private String getBmiCategory(double bmi) {
+        if (bmi < 18.5) {
+            return "Niedowaga";
+        } else if (bmi < 25.0) {
+            return "Waga prawidłowa";
+        } else if (bmi < 30.0) {
+            return "Nadwaga";
+        } else {
+            return "Otyłość";
+        }
+    }
+
+    private void updateInputHints() {
+        if (SettingsActivity.UNIT_IMPERIAL.equals(currentUnit)) {
+            etWeight.setHint("Waga (lbs)");
+            etHeight.setHint("Wzrost (in)");
+        } else {
+            etWeight.setHint("Waga (kg)");
+            etHeight.setHint("Wzrost (cm)");
+        }
     }
 }
