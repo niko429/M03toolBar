@@ -9,39 +9,35 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Kontakt"
+        android:text="ShopApp"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="30dp" />
 
     <Button
-        android:id="@+id/btnStrona"
+        android:id="@+id/btnChleb"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Strona WWW" />
+        android:text="Dodaj chleb" />
 
     <Button
-        android:id="@+id/btnTelefon"
+        android:id="@+id/btnMleko"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Zadzwoń" />
+        android:text="Dodaj mleko" />
 
     <Button
-        android:id="@+id/btnEmail"
+        android:id="@+id/btnMaslo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="E-mail" />
+        android:text="Dodaj masło" />
 
-    <Button
-        android:id="@+id/btnMapa"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/txtOstatnioDodano"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Mapa" />
-
-    <Button
-        android:id="@+id/btnUdostepnij"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Udostępnij" />
+        android:text="Ostatnio dodano: nic"
+        android:textSize="20sp"
+        android:layout_marginTop="30dp" />
 
 </LinearLayout>
