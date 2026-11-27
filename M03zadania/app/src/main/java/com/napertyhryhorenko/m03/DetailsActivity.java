@@ -3,6 +3,7 @@ package com.napertyhryhorenko.m03;
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import java.util.Locale;
 
 public class DetailsActivity extends AppCompatActivity {
@@ -16,6 +17,13 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Szczegóły BMI");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         TextView tvDetails = findViewById(R.id.tvDetails);
 

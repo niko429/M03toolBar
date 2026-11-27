@@ -2,6 +2,8 @@ package com.napertyhryhorenko.m03;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,7 +12,9 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.Locale;
 
@@ -52,25 +56,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Kalkulator BMI");
+        }
+
         etWeight = findViewById(R.id.etWeight);
         etHeight = findViewById(R.id.etHeight);
         tvResult = findViewById(R.id.tvResult);
         btnDetails = findViewById(R.id.btnDetails);
-
         Button btnCalculate = findViewById(R.id.btnCalculate);
-        Button btnInfo = findViewById(R.id.btnInfo);
-        Button btnSettings = findViewById(R.id.btnSettings);
-
-        btnInfo.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, InfoActivity.class);
-            startActivity(intent);
-        });
-
-        btnSettings.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            intent.putExtra(SettingsActivity.EXTRA_UNIT_SYSTEM, currentUnit);
-            settingsLauncher.launch(intent);
-        });
 
         btnCalculate.setOnClickListener(v -> calculateBmi());
 
@@ -82,6 +78,28 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(DetailsActivity.EXTRA_HEIGHT, lastHeight);
             startActivity(intent);
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            intent.putExtra(SettingsActivity.EXTRA_UNIT_SYSTEM, currentUnit);
+            settingsLauncher.launch(intent);
+            return true;
+        } else if (id == R.id.action_info) {
+            Intent intent = new Intent(MainActivity.this, InfoActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void calculateBmi() {
